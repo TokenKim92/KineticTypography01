@@ -63,7 +63,7 @@ class DotKineticText {
   #mouse = {
     x: 0,
     y: 0,
-    radius: 30,
+    radius: 100,
   };
   #isRandomTextMode;
 
@@ -95,10 +95,10 @@ class DotKineticText {
 
     window.addEventListener('resize', this.resize);
     this.#canvas.addEventListener('click', this.onClick);
-    // document.addEventListener('pointermove', (event) => {
-    //   this.#mouse.x = event.clientX;
-    //   this.#mouse.y = event.clientY;
-    // });
+    document.addEventListener('pointermove', (event) => {
+      this.#mouse.x = event.clientX;
+      this.#mouse.y = event.clientY;
+    });
 
     this.resize();
     window.requestAnimationFrame(this.animate.bind(this));
@@ -160,8 +160,8 @@ class DotKineticText {
 
       if (dist < minDist) {
         angle = Math.atan2(dy, dx);
-        tx = dot.x + Math.cos(angle) * minDist;
-        ty = dot.y + Math.sin(angle) * minDist;
+        tx = dot.pos.x + Math.cos(angle) * minDist;
+        ty = dot.pos.y + Math.sin(angle) * minDist;
         ax = tx - this.#mouse.x;
         ay = ty - this.#mouse.y;
 
@@ -175,9 +175,9 @@ class DotKineticText {
   };
 
   onClick = (event) => {
-    if (!posInRect({ x: event.offsetX, y: event.offsetY }, this.#textField)) {
-      return;
-    }
+    // if (!posInRect({ x: event.offsetX, y: event.offsetY }, this.#textField)) {
+    //   return;
+    // }
 
     for (let i = 0; i < this.#dots.length; i++) {
       this.#dots[i].init();
