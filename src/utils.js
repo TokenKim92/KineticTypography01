@@ -26,7 +26,7 @@ export function posInRect(pos, rect) {
   }
 }
 
-export function randomClickOnRect(rect) {
+export function randomClickInRect(rect) {
   const x = rect.left + Math.random() * rect.width;
   const y = rect.top + Math.random() * rect.height;
   return { offsetX: x, offsetY: y };

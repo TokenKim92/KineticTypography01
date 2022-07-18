@@ -1,7 +1,7 @@
 import TextFrame from './textFrame.js';
 import Ripple from './ripple.js';
 import Dot from './dot.js';
-import { collide, posInRect, randomClickOnRect } from './utils.js';
+import { collide, posInRect, randomClickInRect } from './utils.js';
 
 export default class AppBuilder {
   dotRadius(dotRadius) {
@@ -42,6 +42,7 @@ export default class AppBuilder {
 
 class DotKineticText {
   static RADIUS = 10;
+  static MATCH_MEDIA = window.matchMedia('(max-width: 768px)').matches;
 
   #canvas;
   #ctx;
@@ -81,7 +82,7 @@ class DotKineticText {
     this.#dotRadius = dotRadius;
     this.#pixelSize = this.#dotRadius * 2;
     this.#rippleSpeed = rippleSpeed;
-    this.#pixelRatio = window.devicePixelRatio > 1 ? 2 : 1;
+    this.#pixelRatio = 1; // window.devicePixelRatio > 1 ? 2 : 1;
     this.#fontFormat = fontFormat;
     this.#text = text;
     this.#isRandomTextMode = isRandomTextMode;
@@ -113,7 +114,11 @@ class DotKineticText {
     this.#ctx.scale(this.#pixelRatio, this.#pixelRatio);
 
     this.addDotItemOnTextField();
-    this.onClick(randomClickOnRect(this.#textField));
+    if (DotKineticText.MATCH_MEDIA) {
+      this.onClick({ offsetX: 0, offsetY: 0 });
+    } else {
+      this.onClick(randomClickInRect(this.#textField));
+    }
   };
 
   animate = (curTime) => {
@@ -175,9 +180,12 @@ class DotKineticText {
   };
 
   onClick = (event) => {
-    // if (!posInRect({ x: event.offsetX, y: event.offsetY }, this.#textField)) {
-    //   return;
-    // }
+    if (
+      DotKineticText.MATCH_MEDIA &&
+      posInRect({ x: event.offsetX, y: event.offsetY }, this.#textField)
+    ) {
+      return;
+    }
 
     for (let i = 0; i < this.#dots.length; i++) {
       this.#dots[i].init();
