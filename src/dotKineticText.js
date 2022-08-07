@@ -53,10 +53,14 @@ export default class DotKineticText extends BaseCanvas {
     this.ripple = new Ripple(this.#rippleSpeed);
 
     this.canvas.addEventListener('click', this.onClick);
-    document.addEventListener('pointermove', (event) => {
-      this.#mouse.x = event.clientX;
-      this.#mouse.y = event.clientY;
-    });
+    document.addEventListener('pointermove', this.onMouseMove);
+  }
+
+  destroy() {
+    this.canvas.removeEventListener('click', this.onClick);
+    document.removeEventListener('pointermove', this.onMouseMove);
+
+    super.destroy();
   }
 
   resize = () => {
@@ -155,6 +159,11 @@ export default class DotKineticText extends BaseCanvas {
     );
 
     this.#isKineticActivated = false;
+  };
+
+  onMouseMove = (event) => {
+    this.#mouse.x = event.clientX;
+    this.#mouse.y = event.clientY;
   };
 
   addDotItemOnTextField() {
