@@ -3,36 +3,32 @@ import { getBgColorObject } from './utils.js';
 export default class TextFrame {
   static EVEN_ODD_OFFSET = 6;
 
-  #ctx;
   #fontFormat;
   #pixelSize;
   #bgColor;
 
-  constructor(ctx, fontFormat, pixelSize) {
-    this.#ctx = ctx;
+  constructor(fontFormat, pixelSize) {
     this.#fontFormat = fontFormat;
     this.#pixelSize = pixelSize;
     this.#bgColor = getBgColorObject();
   }
 
-  drawTextFrame(text, stageWidth, stageHeight) {
-    this.#ctx.clearRect(0, 0, stageWidth, stageHeight);
-
-    this.#ctx.font = `
+  drawTextFrame(ctx, text, stageWidth, stageHeight) {
+    ctx.font = `
       ${this.#fontFormat.width} 
       ${this.#fontFormat.size}px 
       ${this.#fontFormat.name}`; // prettier-ignore
 
-    this.#ctx.fillStyle = `rgba(
+    ctx.fillStyle = `rgba(
       ${this.#bgColor.r}, 
       ${this.#bgColor.g}, 
       ${this.#bgColor.b}, 
       0.3)`; // prettier-ignore
-    this.#ctx.textBaseline = 'middle';
+    ctx.textBaseline = 'middle';
 
-    const fontPos = this.#ctx.measureText(text);
+    const fontPos = ctx.measureText(text);
 
-    this.#ctx.fillText(
+    ctx.fillText(
       text,
       (stageWidth - fontPos.width) / 2,
       (stageHeight + fontPos.actualBoundingBoxAscent - fontPos.actualBoundingBoxDescent) / 2
@@ -47,12 +43,12 @@ export default class TextFrame {
 
     return {
       textField: textField,
-      dots: this.#getDotPos(stageWidth, stageHeight),
+      dots: this.#getDotPos(ctx, stageWidth, stageHeight),
     };
   }
 
-  #getDotPos(stageWidth, stageHeight) {
-    const imageData = this.#ctx.getImageData(
+  #getDotPos(ctx, stageWidth, stageHeight) {
+    const imageData = ctx.getImageData(
       0, 0,
       stageWidth, stageHeight
     ).data; // prettier-ignore

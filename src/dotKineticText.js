@@ -43,7 +43,7 @@ export default class DotKineticText extends BaseCanvas {
     this.#text = text;
     this.#isRandomTextMode = isRandomTextMode;
 
-    this.textFrame = new TextFrame(this.ctx, this.#fontFormat, this.#pixelSize);
+    this.textFrame = new TextFrame(this.#fontFormat, this.#pixelSize);
     this.ripple = new Ripple(this.#rippleSpeed);
 
     this.canvas.addEventListener('click', this.onClick);
@@ -141,6 +141,7 @@ export default class DotKineticText extends BaseCanvas {
     );
 
     this.textFrame.drawTextFrame(
+      this.ctx,
       this.#toBeDrawText,
       this.stageWidth,
       this.stageHeight
@@ -160,6 +161,7 @@ export default class DotKineticText extends BaseCanvas {
     }
 
     const textData = this.textFrame.drawTextFrame(
+      this.ctx,
       this.#toBeDrawText,
       this.stageWidth,
       this.stageHeight
