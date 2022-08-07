@@ -1,4 +1,4 @@
-import AppBuilder from './dotKineticText.js';
+import AppBuilder from './src/appBuilder.js';
 
 const body = getComputedStyle(document.body);
 
@@ -7,10 +7,12 @@ const rippleSpeed = body.getPropertyValue('--ripple-speed');
 const fontWidth = body.getPropertyValue('--font-width');
 const fontSize = body.getPropertyValue('--font-size');
 
-new AppBuilder()
-  .dotRadius(dotRadius)
-  .rippleSpeed(rippleSpeed)
-  .fontFormat({ width: fontWidth, size: fontSize, name: 'Arial' })
-  .text('Hi')
-  //.setRandomTextMode(true)
-  .build();
+window.onload = () => {
+  new AppBuilder()
+    .dotRadius(dotRadius)
+    .rippleSpeed(rippleSpeed)
+    .fontFormat({ width: fontWidth, size: fontSize, name: 'Arial' })
+    .text('JS')
+    //.setRandomTextMode(true)
+    .build();
+};

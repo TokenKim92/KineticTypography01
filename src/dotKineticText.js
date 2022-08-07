@@ -2,56 +2,15 @@ import TextFrame from './textFrame.js';
 import Ripple from './ripple.js';
 import Dot from './dot.js';
 import { collide, posInRect, randomClickInRect } from './utils.js';
+import BaseCanvas from '../lib/baseCanvas.js';
 
-export default class AppBuilder {
-  dotRadius(dotRadius) {
-    this.dotRadius = dotRadius;
-    return this;
-  }
-
-  rippleSpeed(rippleSpeed) {
-    this.rippleSpeed = rippleSpeed;
-    return this;
-  }
-
-  fontFormat(fontFormat) {
-    this.fontFormat = fontFormat;
-    return this;
-  }
-
-  text(text) {
-    this.text = text;
-    return this;
-  }
-
-  setRandomTextMode(isRandomTextMode) {
-    this.isRandomTextMode = isRandomTextMode;
-    return this;
-  }
-
-  build() {
-    return new DotKineticText(
-      this.dotRadius,
-      this.rippleSpeed,
-      this.fontFormat,
-      this.text,
-      this.isRandomTextMode
-    );
-  }
-}
-
-class DotKineticText {
+export default class DotKineticText extends BaseCanvas {
   static RADIUS = 10;
   static MATCH_MEDIA = window.matchMedia('(max-width: 768px)').matches;
 
-  #canvas;
-  #ctx;
   #dotRadius;
   #pixelSize;
   #rippleSpeed;
-  #pixelRatio;
-  #stageWidth;
-  #stageHeight;
   #dots = [];
   #pluckCount = 0;
   #maxPluckCount;
@@ -75,43 +34,27 @@ class DotKineticText {
     text,
     isRandomTextMode = false
   ) {
-    this.#canvas = document.createElement('canvas');
-    this.#ctx = this.#canvas.getContext('2d');
-    document.body.append(this.#canvas);
+    super();
 
     this.#dotRadius = dotRadius;
     this.#pixelSize = this.#dotRadius * 2;
     this.#rippleSpeed = rippleSpeed;
-    this.#pixelRatio = 1; // window.devicePixelRatio > 1 ? 2 : 1;
     this.#fontFormat = fontFormat;
     this.#text = text;
     this.#isRandomTextMode = isRandomTextMode;
 
-    this.textFrame = new TextFrame(
-      this.#ctx,
-      this.#fontFormat,
-      this.#pixelSize
-    );
+    this.textFrame = new TextFrame(this.ctx, this.#fontFormat, this.#pixelSize);
     this.ripple = new Ripple(this.#rippleSpeed);
 
-    window.addEventListener('resize', this.resize);
-    this.#canvas.addEventListener('click', this.onClick);
+    this.canvas.addEventListener('click', this.onClick);
     document.addEventListener('pointermove', (event) => {
       this.#mouse.x = event.clientX;
       this.#mouse.y = event.clientY;
     });
-
-    this.resize();
-    window.requestAnimationFrame(this.animate.bind(this));
   }
 
   resize = () => {
-    this.#stageWidth = document.body.clientWidth;
-    this.#stageHeight = document.body.clientHeight;
-
-    this.#canvas.width = this.#stageWidth * this.#pixelRatio;
-    this.#canvas.height = this.#stageHeight * this.#pixelRatio;
-    this.#ctx.scale(this.#pixelRatio, this.#pixelRatio);
+    super.resize();
 
     this.addDotItemOnTextField();
     if (DotKineticText.MATCH_MEDIA) {
@@ -123,13 +66,11 @@ class DotKineticText {
 
   animate = (curTime) => {
     if (this.#isKineticActivated) {
-      this.#ctx.clearRect(0, 0, this.#stageWidth, this.#stageHeight);
+      this.clear();
       this.KineticAnimate(curTime);
     } else {
       this.pluckAnimate();
     }
-
-    window.requestAnimationFrame(this.animate.bind(this));
   };
 
   pluckAnimate = () => {
@@ -140,7 +81,7 @@ class DotKineticText {
       dot = this.#dots[i];
       isCollided = collide(dot.pos.x, dot.pos.y, this.#clickedPos.x, this.#clickedPos.y, this.ripple.radius); // prettier-ignore
       if (isCollided) {
-        dot.pluckAnimate(this.#ctx);
+        dot.pluckAnimate(this.ctx);
       }
     }
 
@@ -175,7 +116,7 @@ class DotKineticText {
         dot.collide();
       }
 
-      dot.kineticAnimate(this.#ctx, curTime);
+      dot.kineticAnimate(this.ctx, curTime);
     }
   };
 
@@ -201,8 +142,8 @@ class DotKineticText {
 
     this.textFrame.drawTextFrame(
       this.#toBeDrawText,
-      this.#stageWidth,
-      this.#stageHeight
+      this.stageWidth,
+      this.stageHeight
     );
 
     this.#isKineticActivated = false;
@@ -220,8 +161,8 @@ class DotKineticText {
 
     const textData = this.textFrame.drawTextFrame(
       this.#toBeDrawText,
-      this.#stageWidth,
-      this.#stageHeight
+      this.stageWidth,
+      this.stageHeight
     );
 
     const dots = textData.dots;
