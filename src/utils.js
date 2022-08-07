@@ -32,16 +32,21 @@ export function randomClickInRect(rect) {
   return { offsetX: x, offsetY: y };
 }
 
-export function getBgColorObject() {
-  const tempBgColor = window
-    .getComputedStyle(document.body, null)
-    .getPropertyValue('background-color')
-    .substring(4, 17)
-    .split(',');
+export function colorToRGB(color) {
+  const colorName = color.toLowerCase();
 
-  return {
-    r: parseInt(tempBgColor[0]),
-    g: parseInt(tempBgColor[1]),
-    b: parseInt(tempBgColor[2]),
-  };
+  if (colorName.includes('rgb')) {
+    const openBracketIndex = colorName.indexOf('(');
+    const closeBracketIndex = colorName.indexOf(')');
+
+    const colorList = colorName
+      .substring(openBracketIndex + 1, closeBracketIndex)
+      .split(', ');
+
+    return {
+      r: colorList[0],
+      g: colorList[1],
+      b: colorList[2],
+    };
+  }
 }

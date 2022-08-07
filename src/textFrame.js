@@ -1,5 +1,3 @@
-import { getBgColorObject } from './utils.js';
-
 export default class TextFrame {
   static EVEN_ODD_OFFSET = 6;
 
@@ -7,25 +5,22 @@ export default class TextFrame {
   #pixelSize;
   #bgColor;
 
-  constructor(fontFormat, pixelSize) {
+  constructor(fontFormat, pixelSize, bgColor) {
     this.#fontFormat = fontFormat;
     this.#pixelSize = pixelSize;
-    this.#bgColor = getBgColorObject();
+    this.#bgColor = bgColor;
   }
 
   drawTextFrame(ctx, text, stageWidth, stageHeight) {
+    ctx.save();
+
     ctx.font = `
       ${this.#fontFormat.width} 
       ${this.#fontFormat.size}px 
       ${this.#fontFormat.name}`; // prettier-ignore
 
-    ctx.fillStyle = `rgba(
-      ${this.#bgColor.r}, 
-      ${this.#bgColor.g}, 
-      ${this.#bgColor.b}, 
-      0.3)`; // prettier-ignore
+    ctx.fillStyle = this.#bgColor;
     ctx.textBaseline = 'middle';
-
     const fontPos = ctx.measureText(text);
 
     ctx.fillText(
@@ -33,6 +28,8 @@ export default class TextFrame {
       (stageWidth - fontPos.width) / 2,
       (stageHeight + fontPos.actualBoundingBoxAscent - fontPos.actualBoundingBoxDescent) / 2
     ); // prettier-ignore
+
+    ctx.restore();
 
     const textField = {
       left:(stageWidth - fontPos.width) / 2,

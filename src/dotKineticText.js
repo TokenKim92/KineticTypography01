@@ -1,12 +1,14 @@
 import TextFrame from './textFrame.js';
 import Ripple from './ripple.js';
 import Dot from './dot.js';
-import { collide, posInRect, randomClickInRect } from './utils.js';
+import { collide, posInRect, randomClickInRect, colorToRGB } from './utils.js';
 import BaseCanvas from '../lib/baseCanvas.js';
 
 export default class DotKineticText extends BaseCanvas {
   static RADIUS = 10;
   static MATCH_MEDIA = window.matchMedia('(max-width: 768px)').matches;
+  static BG_COLOR = 'rgba(0, 0, 0)';
+  static DOT_COLOR = 'rgb(255, 255, 255)';
 
   #dotRadius;
   #pixelSize;
@@ -43,7 +45,11 @@ export default class DotKineticText extends BaseCanvas {
     this.#text = text;
     this.#isRandomTextMode = isRandomTextMode;
 
-    this.textFrame = new TextFrame(this.#fontFormat, this.#pixelSize);
+    this.textFrame = new TextFrame(
+      this.#fontFormat,
+      this.#pixelSize,
+      DotKineticText.BG_COLOR
+    );
     this.ripple = new Ripple(this.#rippleSpeed);
 
     this.canvas.addEventListener('click', this.onClick);
@@ -66,7 +72,7 @@ export default class DotKineticText extends BaseCanvas {
 
   animate = (curTime) => {
     if (this.#isKineticActivated) {
-      this.clear();
+      this.clearCanvas();
       this.KineticAnimate(curTime);
     } else {
       this.pluckAnimate();
@@ -140,6 +146,7 @@ export default class DotKineticText extends BaseCanvas {
       this.#textField
     );
 
+    this.clearCanvas();
     this.textFrame.drawTextFrame(
       this.ctx,
       this.#toBeDrawText,
@@ -160,6 +167,7 @@ export default class DotKineticText extends BaseCanvas {
       this.#toBeDrawText = this.#text;
     }
 
+    this.clearCanvas();
     const textData = this.textFrame.drawTextFrame(
       this.ctx,
       this.#toBeDrawText,
@@ -174,7 +182,14 @@ export default class DotKineticText extends BaseCanvas {
     for (let i = 0; i < dots.length; i++) {
       dot = dots[i];
 
-      this.#dots.push(new Dot(dot, this.#dotRadius));
+      this.#dots.push(
+        new Dot(
+          dot,
+          this.#dotRadius,
+          colorToRGB(DotKineticText.DOT_COLOR),
+          colorToRGB(DotKineticText.BG_COLOR)
+        )
+      );
     }
   }
 }

@@ -1,5 +1,3 @@
-import { getBgColorObject } from './utils.js';
-
 export default class Dot {
   static PI2 = Math.PI * 2;
   static BOUNCE = 0.82;
@@ -7,7 +5,6 @@ export default class Dot {
   static FPS_TIME = 1000 / Dot.FPS;
   static FRICTION = 0.86;
   static RADIUS_OFFSET = 0.85;
-  static BACKGROUND_COLOR = getBgColorObject();
   static INVALID = -1;
 
   #orgPos;
@@ -15,6 +12,8 @@ export default class Dot {
   #prevTime;
   #rotateRatios;
 
+  #bgColor;
+  #orgDotColor;
   #dotColor;
   #pos;
   #posVelocity;
@@ -24,7 +23,7 @@ export default class Dot {
   #toBeIncreased;
   #toBeChangedColorCount;
 
-  constructor(orgPos, targetRadius) {
+  constructor(orgPos, targetRadius, dotColor, bgColor) {
     this.#orgPos = orgPos;
     this.#targetRadius = targetRadius * Dot.RADIUS_OFFSET;
     this.#prevTime = 0;
@@ -33,15 +32,14 @@ export default class Dot {
       this.#targetRadius / Dot.FPS,
     ];
 
+    this.#orgDotColor = dotColor;
+    this.#bgColor = bgColor;
+
     this.init();
   }
 
   init() {
-    this.#dotColor = {
-      r: 255 - Dot.BACKGROUND_COLOR.r,
-      g: 255 - Dot.BACKGROUND_COLOR.g,
-      b: 255 - Dot.BACKGROUND_COLOR.b,
-    };
+    this.#dotColor = this.#orgDotColor;
     this.#pos = {
       x: this.#orgPos.x,
       y: this.#orgPos.y,
@@ -60,9 +58,9 @@ export default class Dot {
 
   pluckAnimate(ctx) {
     ctx.fillStyle = `rgba(
-      ${Dot.BACKGROUND_COLOR.r}, 
-      ${Dot.BACKGROUND_COLOR.g}, 
-      ${Dot.BACKGROUND_COLOR.b}, 
+      ${this.#bgColor.r}, 
+      ${this.#bgColor.g}, 
+      ${this.#bgColor.b}, 
       0.8)`; // prettier-ignore
 
     ctx.fillRect(
@@ -78,9 +76,9 @@ export default class Dot {
 
     ctx.beginPath();
     ctx.fillStyle = `rgb(
-      ${255 - Dot.BACKGROUND_COLOR.r}, 
-      ${255 - Dot.BACKGROUND_COLOR.g}, 
-      ${255 - Dot.BACKGROUND_COLOR.b})`; // prettier-ignore
+      ${this.#dotColor.r}, 
+      ${this.#dotColor.g}, 
+      ${this.#dotColor.b})`;
 
     ctx.arc(
       this.#orgPos.x, this.#orgPos.y,
@@ -99,7 +97,10 @@ export default class Dot {
     this.#pos.y += this.#posVelocity.vy;
 
     ctx.beginPath();
-    ctx.fillStyle = `rgb(${this.#dotColor.r}, ${this.#dotColor.g}, ${this.#dotColor.b})`; // prettier-ignore
+    ctx.fillStyle = `rgb(
+      ${this.#dotColor.r}, 
+      ${this.#dotColor.g}, 
+      ${this.#dotColor.b})`;
 
     ctx.ellipse(
       this.#pos.x, this.#pos.y, 
@@ -131,11 +132,7 @@ export default class Dot {
 
       this.#toBeChangedColorCount--;
     } else if (this.#toBeChangedColorCount !== Dot.INVALID) {
-      this.#dotColor = {
-        r: 255 - Dot.BACKGROUND_COLOR.r,
-        g: 255 - Dot.BACKGROUND_COLOR.g,
-        b: 255 - Dot.BACKGROUND_COLOR.b,
-      };
+      this.#dotColor = this.#orgDotColor;
 
       this.#toBeChangedColorCount = Dot.INVALID;
     }
