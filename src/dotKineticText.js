@@ -1,12 +1,11 @@
 import TextFrame from './textFrame.js';
 import Ripple from './ripple.js';
 import Dot from './dot.js';
-import { collide, posInRect, randomClickInRect, colorToRGB } from './utils.js';
+import { collide, posInRect, randomClickInRect, colorToRGB, getRandomCharFromText } from './utils.js'; // prettier-ignore
 import BaseCanvas from '../lib/baseCanvas.js';
 
 export default class DotKineticText extends BaseCanvas {
-  static BASIC_DOT_RADIUS = 10;
-  static BASIC_RIPPLE_SPEED = 10;
+  static DOT_RADIUS = 10;
   static RADIUS = 10;
   static MATCH_MEDIA = window.matchMedia('(max-width: 768px)').matches;
   static BG_COLOR = 'rgba(0, 0, 0)';
@@ -29,16 +28,17 @@ export default class DotKineticText extends BaseCanvas {
     y: 0,
     radius: 100,
   };
-  #isRandomTextMode = false;
+  #isRandomTextMode;
 
-  constructor(fontFormat, text) {
+  constructor(fontFormat, text, rippleSpeed = 10, isRandomTextMode = false) {
     super();
 
-    this.#dotRadius = DotKineticText.BASIC_DOT_RADIUS;
+    this.#dotRadius = DotKineticText.DOT_RADIUS;
     this.#pixelSize = this.#dotRadius * 2;
-    this.#rippleSpeed = DotKineticText.BASIC_RIPPLE_SPEED;
+    this.#rippleSpeed = rippleSpeed;
     this.#fontFormat = fontFormat;
     this.#text = text;
+    this.#isRandomTextMode = isRandomTextMode;
 
     this.textFrame = new TextFrame(this.#fontFormat, this.#pixelSize, DotKineticText.BG_COLOR); // prettier-ignore
     this.ripple = new Ripple(this.#rippleSpeed);
@@ -58,48 +58,55 @@ export default class DotKineticText extends BaseCanvas {
     super.resize();
 
     this.addDotItemOnTextField();
-    if (DotKineticText.MATCH_MEDIA) {
-      this.onClick({ offsetX: 0, offsetY: 0 });
-    } else {
-      this.onClick(randomClickInRect(this.#textField));
-    }
+    DotKineticText.MATCH_MEDIA ? this.onClick({ offsetX: 0, offsetY: 0 })
+                               : this.onClick(randomClickInRect(this.#textField)); // prettier-ignore
   };
 
   animate = (curTime) => {
-    if (this.#isKineticActivated) {
-      this.clearCanvas();
-      this.KineticAnimate(curTime);
-    } else {
-      this.pluckAnimate();
-    }
+    this.#isKineticActivated ? this.KineticAnimate(curTime) : this.pluckAnimate(); // prettier-ignore
   };
 
-  pluckAnimate = () => {
+  onClick = (event) => {
+    if (
+      DotKineticText.MATCH_MEDIA &&
+      posInRect({ x: event.offsetX, y: event.offsetY }, this.#textField)
+    ) {
+      return;
+    }
+
+    this.#dots.forEach((dot) => dot.init());
+    this.#pluckCount = 0;
+    this.#clickedPos = { x: event.offsetX, y: event.offsetY };
+    this.#maxPluckCount = this.ripple.init(this.#clickedPos.x, this.#clickedPos.y, this.#textField); // prettier-ignore
+
+    this.clearCanvas();
+    this.textFrame.drawTextFrame(this.ctx, this.#toBeDrawText, this.stageWidth, this.stageHeight); // prettier-ignore
+    this.#isKineticActivated = false;
+  };
+
+  onMouseMove = (event) => {
+    this.#mouse.x = event.clientX;
+    this.#mouse.y = event.clientY;
+  };
+
+  pluckAnimate() {
     this.ripple.animate();
 
-    let dot, isCollided;
-    for (let i = 0; i < this.#dots.length; i++) {
-      dot = this.#dots[i];
-      isCollided = collide(dot.pos.x, dot.pos.y, this.#clickedPos.x, this.#clickedPos.y, this.ripple.radius); // prettier-ignore
-      if (isCollided) {
-        dot.pluckAnimate(this.ctx);
-      }
-    }
+    this.#dots
+      .filter((dot) => collide(dot.pos, this.#clickedPos, this.ripple.radius))
+      .forEach((dot) => dot.pluckAnimate(this.ctx));
 
-    if (this.#pluckCount < this.#maxPluckCount) {
-      this.#pluckCount++;
-    } else {
-      this.#isKineticActivated = true;
-    }
-  };
+    const isDonePluckAnimate = this.#pluckCount >= this.#maxPluckCount;
+    isDonePluckAnimate ? (this.#isKineticActivated = true) : this.#pluckCount++;
+  }
 
-  KineticAnimate = (curTime) => {
-    let dot;
+  KineticAnimate(curTime) {
+    this.clearCanvas();
+
     let dx, dy, dist, minDist;
     let angle, tx, ty, ax, ay;
 
-    for (let i = 0; i < this.#dots.length; i++) {
-      dot = this.#dots[i];
+    this.#dots.forEach((dot) => {
       dx = this.#mouse.x - dot.pos.x;
       dy = this.#mouse.y - dot.pos.y;
       dist = Math.sqrt(dx * dx + dy * dy);
@@ -118,54 +125,14 @@ export default class DotKineticText extends BaseCanvas {
       }
 
       dot.kineticAnimate(this.ctx, curTime);
-    }
-  };
-
-  onClick = (event) => {
-    if (
-      DotKineticText.MATCH_MEDIA &&
-      posInRect({ x: event.offsetX, y: event.offsetY }, this.#textField)
-    ) {
-      return;
-    }
-
-    for (let i = 0; i < this.#dots.length; i++) {
-      this.#dots[i].init();
-    }
-
-    this.#pluckCount = 0;
-    this.#clickedPos = { x: event.offsetX, y: event.offsetY };
-    this.#maxPluckCount = this.ripple.init(
-      this.#clickedPos.x,
-      this.#clickedPos.y,
-      this.#textField
-    );
-
-    this.clearCanvas();
-    this.textFrame.drawTextFrame(
-      this.ctx,
-      this.#toBeDrawText,
-      this.stageWidth,
-      this.stageHeight
-    );
-
-    this.#isKineticActivated = false;
-  };
-
-  onMouseMove = (event) => {
-    this.#mouse.x = event.clientX;
-    this.#mouse.y = event.clientY;
-  };
+    });
+  }
 
   addDotItemOnTextField() {
     this.#dots = [];
 
-    if (this.#isRandomTextMode) {
-      const randomText = this.#text.split('');
-      this.#toBeDrawText = randomText[Math.round(Math.random() * (randomText.length - 1))]; // prettier-ignore
-    } else {
-      this.#toBeDrawText = this.#text;
-    }
+    this.#toBeDrawText = this.#isRandomTextMode ? getRandomCharFromText(this.#text)
+                                                : this.#text; // prettier-ignore
 
     this.clearCanvas();
     const textData = this.textFrame.drawTextFrame(
@@ -178,10 +145,7 @@ export default class DotKineticText extends BaseCanvas {
     const dots = textData.dots;
     this.#textField = textData.textField;
 
-    let dot;
-    for (let i = 0; i < dots.length; i++) {
-      dot = dots[i];
-
+    dots.forEach((dot) => {
       this.#dots.push(
         new Dot(
           dot,
@@ -190,18 +154,6 @@ export default class DotKineticText extends BaseCanvas {
           colorToRGB(DotKineticText.BG_COLOR)
         )
       );
-    }
-  }
-
-  set dotRadius(dotRadius) {
-    this.#dotRadius = dotRadius;
-  }
-
-  set rippleSpeed(rippleSpeed) {
-    this.#rippleSpeed = rippleSpeed;
-  }
-
-  setRandomTextMode(isRandomTextMode) {
-    this.#isRandomTextMode = isRandomTextMode;
+    });
   }
 }

@@ -13,17 +13,8 @@ export default class AppBuilder {
     return this;
   }
 
-  setRandomTextMode(isRandomTextMode) {
-    this.isRandomTextMode = isRandomTextMode;
-    return this;
-  }
-
   build() {
-    this.#app = new DotKineticText(
-      this.fontFormat,
-      this.text,
-      this.isRandomTextMode
-    );
+    this.#app = new DotKineticText(this.fontFormat, this.text);
     window.requestAnimationFrame(this.animate);
     window.addEventListener('resize', this.resize);
     this.resize();
