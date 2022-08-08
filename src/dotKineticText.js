@@ -5,6 +5,8 @@ import { collide, posInRect, randomClickInRect, colorToRGB } from './utils.js';
 import BaseCanvas from '../lib/baseCanvas.js';
 
 export default class DotKineticText extends BaseCanvas {
+  static BASIC_DOT_RADIUS = 10;
+  static BASIC_RIPPLE_SPEED = 10;
   static RADIUS = 10;
   static MATCH_MEDIA = window.matchMedia('(max-width: 768px)').matches;
   static BG_COLOR = 'rgba(0, 0, 0)';
@@ -27,23 +29,16 @@ export default class DotKineticText extends BaseCanvas {
     y: 0,
     radius: 100,
   };
-  #isRandomTextMode;
+  #isRandomTextMode = false;
 
-  constructor(
-    dotRadius,
-    rippleSpeed,
-    fontFormat,
-    text,
-    isRandomTextMode = false
-  ) {
+  constructor(fontFormat, text) {
     super();
 
-    this.#dotRadius = dotRadius;
+    this.#dotRadius = DotKineticText.BASIC_DOT_RADIUS;
     this.#pixelSize = this.#dotRadius * 2;
-    this.#rippleSpeed = rippleSpeed;
+    this.#rippleSpeed = DotKineticText.BASIC_RIPPLE_SPEED;
     this.#fontFormat = fontFormat;
     this.#text = text;
-    this.#isRandomTextMode = isRandomTextMode;
 
     this.textFrame = new TextFrame(
       this.#fontFormat,
@@ -200,5 +195,17 @@ export default class DotKineticText extends BaseCanvas {
         )
       );
     }
+  }
+
+  set dotRadius(dotRadius) {
+    this.#dotRadius = dotRadius;
+  }
+
+  set rippleSpeed(rippleSpeed) {
+    this.#rippleSpeed = rippleSpeed;
+  }
+
+  setRandomTextMode(isRandomTextMode) {
+    this.#isRandomTextMode = isRandomTextMode;
   }
 }

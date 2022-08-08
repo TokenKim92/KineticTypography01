@@ -3,16 +3,6 @@ import DotKineticText from './dotKineticText.js';
 export default class AppBuilder {
   #app;
 
-  dotRadius(dotRadius) {
-    this.dotRadius = dotRadius;
-    return this;
-  }
-
-  rippleSpeed(rippleSpeed) {
-    this.rippleSpeed = rippleSpeed;
-    return this;
-  }
-
   fontFormat(fontFormat) {
     this.fontFormat = fontFormat;
     return this;
@@ -30,8 +20,6 @@ export default class AppBuilder {
 
   build() {
     this.#app = new DotKineticText(
-      this.dotRadius,
-      this.rippleSpeed,
       this.fontFormat,
       this.text,
       this.isRandomTextMode
