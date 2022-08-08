@@ -18,7 +18,6 @@ export default class DotKineticText extends BaseCanvas {
   #pluckCount = 0;
   #maxPluckCount;
   #clickedPos = { x: 0, y: 0 };
-  #fontFormat;
   #text;
   #toBeDrawText;
   #textField;
@@ -36,11 +35,10 @@ export default class DotKineticText extends BaseCanvas {
     this.#dotRadius = DotKineticText.DOT_RADIUS;
     this.#pixelSize = this.#dotRadius * 2;
     this.#rippleSpeed = rippleSpeed;
-    this.#fontFormat = fontFormat;
     this.#text = text;
     this.#isRandomTextMode = isRandomTextMode;
 
-    this.textFrame = new TextFrame(this.#fontFormat, this.#pixelSize, DotKineticText.BG_COLOR); // prettier-ignore
+    this.textFrame = new TextFrame(fontFormat, this.#pixelSize, DotKineticText.BG_COLOR); // prettier-ignore
     this.ripple = new Ripple(this.#rippleSpeed);
 
     this.addEventToCanvas('click', this.onClick);

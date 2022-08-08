@@ -1,11 +1,9 @@
 import AppBuilder from './src/appBuilder.js';
-
-const fontWidth = 800;
-const fontSize = 700;
+import FontFormat from './lib/fontFormat.js';
 
 window.onload = () => {
   new AppBuilder()
-    .fontFormat({ width: fontWidth, size: fontSize, name: 'Arial' })
+    .fontFormat(new FontFormat(800, 700, 'Arial'))
     .text('JS')
     .build();
 };

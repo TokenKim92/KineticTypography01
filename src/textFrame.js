@@ -14,11 +14,7 @@ export default class TextFrame {
   drawTextFrame(ctx, text, stageWidth, stageHeight) {
     ctx.save();
 
-    ctx.font = `
-      ${this.#fontFormat.width} 
-      ${this.#fontFormat.size}px 
-      ${this.#fontFormat.name}`; // prettier-ignore
-
+    ctx.font = this.#fontFormat.font;
     ctx.fillStyle = this.#bgColor;
     ctx.textBaseline = 'middle';
     const fontPos = ctx.measureText(text);
@@ -45,10 +41,7 @@ export default class TextFrame {
   }
 
   #getDotPos(ctx, stageWidth, stageHeight) {
-    const imageData = ctx.getImageData(
-      0, 0,
-      stageWidth, stageHeight
-    ).data; // prettier-ignore
+    const imageData = ctx.getImageData(0, 0, stageWidth, stageHeight).data; // prettier-ignore
 
     const dots = [];
     let alphaValue;
