@@ -40,19 +40,15 @@ export default class DotKineticText extends BaseCanvas {
     this.#fontFormat = fontFormat;
     this.#text = text;
 
-    this.textFrame = new TextFrame(
-      this.#fontFormat,
-      this.#pixelSize,
-      DotKineticText.BG_COLOR
-    );
+    this.textFrame = new TextFrame(this.#fontFormat, this.#pixelSize, DotKineticText.BG_COLOR); // prettier-ignore
     this.ripple = new Ripple(this.#rippleSpeed);
 
-    this.canvas.addEventListener('click', this.onClick);
+    this.addEventToCanvas('click', this.onClick);
     document.addEventListener('pointermove', this.onMouseMove);
   }
 
   destroy() {
-    this.canvas.removeEventListener('click', this.onClick);
+    this.removeEventToCanvas('click', this.onClick);
     document.removeEventListener('pointermove', this.onMouseMove);
 
     super.destroy();
