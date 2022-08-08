@@ -1,5 +1,6 @@
+import { PI2 } from './utils.js';
+
 export default class Dot {
-  static PI2 = Math.PI * 2;
   static BOUNCE = 0.82;
   static FPS = 15;
   static FPS_TIME = 1000 / Dot.FPS;
@@ -12,9 +13,9 @@ export default class Dot {
   #prevTime;
   #rotateRatios;
 
-  #bgColor;
-  #orgDotColor;
-  #dotColor;
+  #backgroundRGB;
+  #orgDotRGB;
+  #dotRGB;
   #pos;
   #posVelocity;
   #rotateRadius;
@@ -26,20 +27,16 @@ export default class Dot {
   constructor(orgPos, targetRadius, dotColor, bgColor) {
     this.#orgPos = orgPos;
     this.#targetRadius = targetRadius * Dot.RADIUS_OFFSET;
+    this.#orgDotRGB = dotColor;
+    this.#backgroundRGB = bgColor;
     this.#prevTime = 0;
-    this.#rotateRatios = [
-      (this.#targetRadius / Dot.FPS) * -1,
-      this.#targetRadius / Dot.FPS,
-    ];
-
-    this.#orgDotColor = dotColor;
-    this.#bgColor = bgColor;
+    this.#rotateRatios = [(this.#targetRadius / Dot.FPS) * -1, this.#targetRadius / Dot.FPS]; // prettier-ignore
 
     this.init();
   }
 
   init() {
-    this.#dotColor = this.#orgDotColor;
+    this.#dotRGB = this.#orgDotRGB;
     this.#pos = {
       x: this.#orgPos.x,
       y: this.#orgPos.y,
@@ -51,16 +48,17 @@ export default class Dot {
     this.#radius = 0;
     this.#radiusVelocity = 0;
     this.#toBeIncreased = 0;
-    this.#rotateRadius =
-      this.#targetRadius + this.#rotateRatios[this.#toBeIncreased];
+    this.#rotateRadius = this.#targetRadius + this.#rotateRatios[this.#toBeIncreased]; // prettier-ignore
     this.#toBeChangedColorCount = Dot.INVALID;
   }
 
   pluckAnimate(ctx) {
+    ctx.save();
+
     ctx.fillStyle = `rgba(
-      ${this.#bgColor.r}, 
-      ${this.#bgColor.g}, 
-      ${this.#bgColor.b}, 
+      ${this.#backgroundRGB.r}, 
+      ${this.#backgroundRGB.g}, 
+      ${this.#backgroundRGB.b}, 
       0.8)`; // prettier-ignore
 
     ctx.fillRect(
@@ -76,15 +74,17 @@ export default class Dot {
 
     ctx.beginPath();
     ctx.fillStyle = `rgb(
-      ${this.#dotColor.r}, 
-      ${this.#dotColor.g}, 
-      ${this.#dotColor.b})`;
+      ${this.#dotRGB.r}, 
+      ${this.#dotRGB.g}, 
+      ${this.#dotRGB.b})`;
 
     ctx.arc(
       this.#orgPos.x, this.#orgPos.y,
       this.#radius * Dot.RADIUS_OFFSET, 
-      0, Dot.PI2, false); // prettier-ignore
+      0, PI2, false); // prettier-ignore
     ctx.fill();
+
+    ctx.restore();
   }
 
   kineticAnimate(ctx, curTime) {
@@ -98,14 +98,14 @@ export default class Dot {
 
     ctx.beginPath();
     ctx.fillStyle = `rgb(
-      ${this.#dotColor.r}, 
-      ${this.#dotColor.g}, 
-      ${this.#dotColor.b})`;
+      ${this.#dotRGB.r}, 
+      ${this.#dotRGB.g}, 
+      ${this.#dotRGB.b})`;
 
     ctx.ellipse(
       this.#pos.x, this.#pos.y, 
       this.#rotateRadius, this.#radius * Dot.RADIUS_OFFSET, 
-      0, 0, Dot.PI2); // prettier-ignore
+      0, 0, PI2); // prettier-ignore
     ctx.fill();
   }
 
@@ -124,7 +124,7 @@ export default class Dot {
   #onFPSTime() {
     if (this.#toBeChangedColorCount > 0) {
       const randomColor = Math.round(Math.random() * 0xffffff);
-      this.#dotColor = {
+      this.#dotRGB = {
         r: (randomColor >> 16) & 0xff,
         g: (randomColor >> 8) & 0xff,
         b: randomColor & 0xff,
@@ -132,8 +132,7 @@ export default class Dot {
 
       this.#toBeChangedColorCount--;
     } else if (this.#toBeChangedColorCount !== Dot.INVALID) {
-      this.#dotColor = this.#orgDotColor;
-
+      this.#dotRGB = this.#orgDotRGB;
       this.#toBeChangedColorCount = Dot.INVALID;
     }
 
@@ -160,9 +159,5 @@ export default class Dot {
 
   get pos() {
     return this.#pos;
-  }
-
-  set pos(pos) {
-    this.#pos = pos;
   }
 }

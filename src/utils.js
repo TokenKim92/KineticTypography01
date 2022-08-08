@@ -1,3 +1,5 @@
+export const PI2 = Math.PI * 2;
+
 export function distance(x1, y1, x2, y2) {
   const x = x2 - x1;
   const y = y2 - y1;
