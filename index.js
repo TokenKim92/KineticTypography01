@@ -1,4 +1,4 @@
-import './lib/kt-dot.min.js';
+import './webpack/dist/kt-dot.js';
 import FontFormat from './lib/fontFormat.js';
 
 window.onload = () => {
