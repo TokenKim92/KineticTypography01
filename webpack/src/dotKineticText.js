@@ -3,11 +3,11 @@ import Ripple from './ripple.js';
 import Dot from './dot.js';
 import { collide, posInRect, randomClickInRect, colorToRGB, getRandomCharFromText } from './utils.js'; // prettier-ignore
 import BaseCanvas from '../lib/baseCanvas.js';
+import FontFormat from '../lib/fontFormat.js';
 
 export default class DotKineticText extends BaseCanvas {
   static DOT_RADIUS = 10;
   static RADIUS = 10;
-  static MATCH_MEDIA = window.matchMedia('(max-width: 768px)').matches;
   static BG_COLOR = 'rgba(0, 0, 0)';
   static DOT_COLOR = 'rgb(255, 255, 255)';
 
@@ -28,8 +28,10 @@ export default class DotKineticText extends BaseCanvas {
     radius: 100,
   };
   #isRandomTextMode;
+  #fontName;
+  #prevSizeMode = BaseCanvas.INIT_MODE;
 
-  constructor(fontFormat, text, rippleSpeed = 10, isRandomTextMode = false) {
+  constructor(fontName, text, rippleSpeed = 10, isRandomTextMode = false) {
     super(true);
 
     this.#dotRadius = DotKineticText.DOT_RADIUS;
@@ -37,10 +39,42 @@ export default class DotKineticText extends BaseCanvas {
     this.#rippleSpeed = rippleSpeed;
     this.#text = text;
     this.#isRandomTextMode = isRandomTextMode;
+    this.#fontName = fontName;
 
-    this.textFrame = new TextFrame(fontFormat, this.#pixelSize, DotKineticText.BG_COLOR); // prettier-ignore
     this.ripple = new Ripple(this.#rippleSpeed);
+    this.#initTextFrame();
     this.initEvents();
+  }
+
+  #initTextFrame() {
+    const sizeMode = this.getSizeMode();
+
+    if (sizeMode === this.#prevSizeMode) {
+      return;
+    }
+
+    this.#prevSizeMode = sizeMode;
+    let fontSize = 0;
+
+    switch (sizeMode) {
+      case BaseCanvas.SMALL_MODE:
+        fontSize = 250;
+        break;
+      case BaseCanvas.REGULAR_MODE:
+        fontSize = 400;
+        break;
+      case BaseCanvas.MEDIUM_MODE:
+        fontSize = 700;
+        break;
+      case BaseCanvas.LARGE_MODE:
+        fontSize = 800;
+        break;
+      default:
+        throw new Error('This canvas size is not possible!');
+    }
+
+    const fontFormat = new FontFormat(800, fontSize, this.#fontName);
+    this.textFrame = new TextFrame(fontFormat, this.#pixelSize, DotKineticText.BG_COLOR); // prettier-ignore
   }
 
   initEvents() {
@@ -66,9 +100,10 @@ export default class DotKineticText extends BaseCanvas {
   resize = () => {
     super.resize();
 
+    this.#initTextFrame();
     this.addDotItemOnTextField();
-    DotKineticText.MATCH_MEDIA ? this.onClick({ offsetX: 0, offsetY: 0 })
-                               : this.onClick(randomClickInRect(this.#textField)); // prettier-ignore
+    this.isMatchMedia ? this.onClick({ offsetX: 0, offsetY: 0 })
+                      : this.onClick(randomClickInRect(this.#textField)); // prettier-ignore
   };
 
   animate = (curTime) => {
@@ -77,7 +112,7 @@ export default class DotKineticText extends BaseCanvas {
 
   onClick = (event) => {
     if (
-      DotKineticText.MATCH_MEDIA &&
+      this.isMatchMedia &&
       posInRect({ x: event.offsetX, y: event.offsetY }, this.#textField)
     ) {
       return;

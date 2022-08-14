@@ -1,18 +1,14 @@
-import './webpack/dist/kt-dot.js';
-import FontFormat from './lib/fontFormat.js';
+import './lib/kt-dot.min.js';
 
 window.onload = () => {
-  new AppBuilder()
-    .fontFormat(new FontFormat(800, 700, 'Arial'))
-    .text('JS')
-    .build();
+  new AppBuilder().fontName('Arial').text('JS').build();
 };
 
 export default class AppBuilder {
   #app;
 
-  fontFormat(fontFormat) {
-    this.fontFormat = fontFormat;
+  fontName(fontName) {
+    this.fontName = fontName;
     return this;
   }
 
@@ -22,7 +18,7 @@ export default class AppBuilder {
   }
 
   build() {
-    this.#app = new kt.Dot(this.fontFormat, this.text);
+    this.#app = new kt.Dot(this.fontName, this.text);
     window.requestAnimationFrame(this.animate);
     window.addEventListener('resize', this.resize);
     this.resize();

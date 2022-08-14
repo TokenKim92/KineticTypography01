@@ -1,7 +1,12 @@
 export default class BaseCanvas {
+  static INIT_MODE = -1;
+  static SMALL_MODE = 0;
+  static REGULAR_MODE = 1;
+  static MEDIUM_MODE = 2;
+  static LARGE_MODE = 3;
+
   #canvas;
   #ctx;
-  #pixelRatio;
   #stageWidth;
   #stageHeight;
   #isFull;
@@ -11,7 +16,6 @@ export default class BaseCanvas {
     this.#ctx = this.#canvas.getContext('2d');
     document.body.append(this.#canvas);
 
-    this.#pixelRatio = window.devicePixelRatio > 1 ? 2 : 1;
     this.#isFull = isFull;
     this.#isFull && this.#canvas.classList.add('canvas-full');
   }
@@ -20,9 +24,24 @@ export default class BaseCanvas {
     this.#stageWidth = width === 0 ? document.body.clientWidth : width;
     this.#stageHeight = height === 0 ? document.body.clientHeight : height;
 
-    this.#canvas.width = this.#stageWidth * this.#pixelRatio;
-    this.#canvas.height = this.#stageHeight * this.#pixelRatio;
-    this.#ctx.scale(this.#pixelRatio, this.#pixelRatio);
+    this.#canvas.width = this.#stageWidth;
+    this.#canvas.height = this.#stageHeight;
+  }
+
+  getSizeMode() {
+    const canvasSizeModes = [
+      { mode: BaseCanvas.SMALL_MODE, size: 500 },
+      { mode: BaseCanvas.REGULAR_MODE, size: 1000 },
+      { mode: BaseCanvas.MEDIUM_MODE, size: 1980 },
+      { mode: BaseCanvas.LARGE_MODE, size: 3840 },
+    ];
+
+    const sizeModeIndex = 
+      canvasSizeModes
+        .filter((sizeMode) => !window.matchMedia(`(max-width: ${sizeMode.size}px)`).matches)
+        .length; // prettier-ignore
+
+    return canvasSizeModes[sizeModeIndex].mode;
   }
 
   clearCanvas() {
@@ -179,7 +198,7 @@ export default class BaseCanvas {
     return this.#stageHeight;
   }
 
-  get pixelRatio() {
-    return this.#pixelRatio;
+  get isMatchMedia() {
+    return this.getSizeMode() === BaseCanvas.SMALL_MODE;
   }
 }
