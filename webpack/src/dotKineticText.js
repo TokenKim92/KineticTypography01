@@ -6,14 +6,13 @@ import BaseCanvas from '../lib/baseCanvas.js';
 import FontFormat from '../lib/fontFormat.js';
 
 export default class DotKineticText extends BaseCanvas {
-  static DOT_RADIUS = 10;
   static RADIUS = 10;
+  static PIXEL_SIZE = DotKineticText.RADIUS * 2;
+  static SMALL_DOT_RADIUS = 4;
+  static SMALL_MODE_PIXEL_SIZE = DotKineticText.SMALL_DOT_RADIUS * 2;
   static BG_COLOR = 'rgba(0, 0, 0)';
   static DOT_COLOR = 'rgb(255, 255, 255)';
 
-  #dotRadius;
-  #pixelSize;
-  #rippleSpeed;
   #dots = [];
   #pluckCount = 0;
   #maxPluckCount;
@@ -31,17 +30,14 @@ export default class DotKineticText extends BaseCanvas {
   #fontName;
   #prevSizeMode = BaseCanvas.INIT_MODE;
 
-  constructor(fontName, text, rippleSpeed = 10, isRandomTextMode = false) {
+  constructor(fontName, text, rippleTime = 5, isRandomTextMode = false) {
     super(true);
 
-    this.#dotRadius = DotKineticText.DOT_RADIUS;
-    this.#pixelSize = this.#dotRadius * 2;
-    this.#rippleSpeed = rippleSpeed;
     this.#text = text;
     this.#isRandomTextMode = isRandomTextMode;
     this.#fontName = fontName;
 
-    this.ripple = new Ripple(this.#rippleSpeed);
+    this.ripple = new Ripple(rippleTime);
     this.#initTextFrame();
     this.initEvents();
   }
@@ -74,7 +70,10 @@ export default class DotKineticText extends BaseCanvas {
     }
 
     const fontFormat = new FontFormat(800, fontSize, this.#fontName);
-    this.textFrame = new TextFrame(fontFormat, this.#pixelSize, DotKineticText.BG_COLOR); // prettier-ignore
+    const pixelSize = this.isMatchMedia
+      ? DotKineticText.SMALL_MODE_PIXEL_SIZE
+      : DotKineticText.PIXEL_SIZE;
+    this.textFrame = new TextFrame(fontFormat, pixelSize, DotKineticText.BG_COLOR); // prettier-ignore
   }
 
   initEvents() {
@@ -183,12 +182,15 @@ export default class DotKineticText extends BaseCanvas {
 
     const dots = textData.dots;
     this.#textField = textData.textField;
+    const dotRadius = this.isMatchMedia
+      ? DotKineticText.SMALL_DOT_RADIUS
+      : DotKineticText.RADIUS;
 
     dots.forEach((dot) => {
       this.#dots.push(
         new Dot(
           dot,
-          this.#dotRadius,
+          dotRadius,
           colorToRGB(DotKineticText.DOT_COLOR),
           colorToRGB(DotKineticText.BG_COLOR)
         )

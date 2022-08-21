@@ -1,4 +1,4 @@
-import './lib/kt-dot.min.js';
+import DotKineticText from './webpack/src/dotKineticText.js';
 
 window.onload = () => {
   new AppBuilder().fontName('Arial').text('JS').build();
@@ -18,7 +18,7 @@ export default class AppBuilder {
   }
 
   build() {
-    this.#app = new kt.Dot(this.fontName, this.text);
+    this.#app = new DotKineticText(this.fontName, this.text);
     window.requestAnimationFrame(this.animate);
     window.addEventListener('resize', this.resize);
     this.resize();

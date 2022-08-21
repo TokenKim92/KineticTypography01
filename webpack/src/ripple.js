@@ -3,17 +3,21 @@ import { distance } from './utils.js';
 export default class Ripple {
   static PLUCK_COUNT_OFFSET = 1.5;
 
+  #time;
+  #FPS;
   #speed;
   #radius;
   #maxRadius;
 
-  constructor(speed) {
-    this.#speed = speed;
+  constructor(time, FPS = 60) {
+    this.#time = time;
+    this.#FPS = FPS;
   }
 
   init(x, y, textField) {
     this.#radius = 0;
     this.#maxRadius = this.#getMaxDistance(x, y, textField);
+    this.#speed = this.#calculateSpeed(this.#maxRadius);
 
     return Math.ceil(this.#maxRadius / this.#speed) * Ripple.PLUCK_COUNT_OFFSET;
   }
@@ -31,11 +35,12 @@ export default class Ripple {
     return Math.max(fromLeftTop, fromRightTop, fromLeftBottom, fromRightBottom);
   }
 
-  get radius() {
-    return this.#radius;
+  #calculateSpeed(maxRadius) {
+    const FPS_TIME = 1000 / this.#FPS;
+    return maxRadius / (FPS_TIME * this.#time);
   }
 
-  set radius(radius) {
-    this.#radius = radius;
+  get radius() {
+    return this.#radius;
   }
 }
