@@ -11,7 +11,7 @@ export default class TextFrame {
     this.#bgColor = bgColor;
   }
 
-  drawTextFrame = (ctx, text, stageWidth, stageHeight) => {
+  drawTextFrame(ctx, text, stageWidth, stageHeight) {
     ctx.save();
 
     ctx.font = this.#fontFormat.font;
@@ -38,7 +38,7 @@ export default class TextFrame {
       textField: textField,
       dots: this.#getDotPos(ctx, stageWidth, stageHeight),
     };
-  };
+  }
 
   #getDotPos(ctx, stageWidth, stageHeight) {
     const imageData = ctx.getImageData(0, 0, stageWidth, stageHeight).data; // prettier-ignore

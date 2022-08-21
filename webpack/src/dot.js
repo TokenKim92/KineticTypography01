@@ -52,7 +52,7 @@ export default class Dot {
     this.#toBeChangedColorCount = Dot.INVALID;
   }
 
-  pluckAnimate = (ctx) => {
+  pluckAnimate(ctx) {
     ctx.save();
 
     ctx.fillStyle = `rgba(
@@ -85,9 +85,9 @@ export default class Dot {
     ctx.fill();
 
     ctx.restore();
-  };
+  }
 
-  kineticAnimate = (ctx, curTime) => {
+  kineticAnimate(ctx, curTime) {
     this.#checkFPSTime(curTime);
 
     this.#posVelocity.vx *= Dot.FRICTION;
@@ -107,7 +107,7 @@ export default class Dot {
       this.#rotateRadius, this.#radius * Dot.RADIUS_OFFSET, 
       0, 0, PI2); // prettier-ignore
     ctx.fill();
-  };
+  }
 
   #checkFPSTime(curTime) {
     if (!this.#prevTime) {

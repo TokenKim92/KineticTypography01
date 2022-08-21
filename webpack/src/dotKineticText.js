@@ -43,16 +43,14 @@ export default class DotKineticText extends BaseCanvas {
   }
 
   #initTextFrame() {
-    const sizeMode = this.getSizeMode();
-
-    if (sizeMode === this.#prevSizeMode) {
+    if (this.sizeMode === this.#prevSizeMode) {
       return;
     }
 
-    this.#prevSizeMode = sizeMode;
+    this.#prevSizeMode = this.sizeMode;
     let fontSize = 0;
 
-    switch (sizeMode) {
+    switch (this.sizeMode) {
       case BaseCanvas.SMALL_MODE:
         fontSize = 250;
         break;
@@ -105,9 +103,9 @@ export default class DotKineticText extends BaseCanvas {
                       : this.onClick(randomClickInRect(this.#textField)); // prettier-ignore
   };
 
-  animate = (curTime) => {
+  animate(curTime) {
     this.#isKineticActivated ? this.KineticAnimate(curTime) : this.pluckAnimate(); // prettier-ignore
-  };
+  }
 
   onClick = (event) => {
     if (
@@ -123,7 +121,12 @@ export default class DotKineticText extends BaseCanvas {
     this.#maxPluckCount = this.ripple.init(this.#clickedPos.x, this.#clickedPos.y, this.#textField); // prettier-ignore
 
     this.clearCanvas();
-    this.animateTarget(this.textFrame.drawTextFrame, this.#toBeDrawText, this.stageWidth, this.stageHeight); // prettier-ignore
+    this.textFrame.drawTextFrame(
+      this.ctx,
+      this.#toBeDrawText,
+      this.stageWidth,
+      this.stageHeight
+    );
     this.#isKineticActivated = false;
   };
 
@@ -137,7 +140,7 @@ export default class DotKineticText extends BaseCanvas {
 
     this.#dots
       .filter((dot) => collide(dot.pos, this.#clickedPos, this.ripple.radius))
-      .forEach((dot) => this.animateTarget(dot.pluckAnimate, 1, 2));
+      .forEach((dot) => dot.pluckAnimate(this.ctx));
 
     const isDonePluckAnimate = this.#pluckCount >= this.#maxPluckCount;
     isDonePluckAnimate ? (this.#isKineticActivated = true) : this.#pluckCount++;
@@ -167,7 +170,7 @@ export default class DotKineticText extends BaseCanvas {
         dot.collide();
       }
 
-      this.animateTarget(dot.kineticAnimate, curTime);
+      dot.kineticAnimate(this.ctx, curTime);
     });
   }
 
@@ -178,7 +181,12 @@ export default class DotKineticText extends BaseCanvas {
                                                 : this.#text; // prettier-ignore
 
     this.clearCanvas();
-    const textData = this.animateTarget(this.textFrame.drawTextFrame, this.#toBeDrawText, this.stageWidth, this.stageHeight) // prettier-ignore
+    const textData = this.textFrame.drawTextFrame(
+      this.ctx,
+      this.#toBeDrawText,
+      this.stageWidth,
+      this.stageHeight
+    );
 
     const dots = textData.dots;
     this.#textField = textData.textField;
