@@ -15,7 +15,7 @@ const config = {
   output: {
     path: path.join(__dirname, 'dist'),
     filename: FILENAME + '.js',
-    library: ['kt', 'Dot'], // "kt" means Kinetic Typography
+    library: ['typography', 'Dot'], // "kt" means Kinetic Typography
     libraryTarget: 'umd',
     libraryExport: 'default',
   },
