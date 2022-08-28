@@ -53,6 +53,7 @@ export default class DotKineticText extends BaseCanvas {
     switch (this.sizeMode) {
       case BaseCanvas.SMALL_MODE:
         fontSize = 250;
+        this.#mouse.radius /= 2;
         break;
       case BaseCanvas.REGULAR_MODE:
         fontSize = 400;
