@@ -1,7 +1,7 @@
 import DotKineticText from './webpack/src/dotKineticText.js';
 
 window.onload = () => {
-  new AppBuilder().fontName('Arial').text('JS').build();
+  new AppBuilder().fontName('Fjalla One').text('JS').build();
 };
 
 export default class AppBuilder {
@@ -18,12 +18,15 @@ export default class AppBuilder {
   }
 
   build() {
-    this.#app = new DotKineticText(this.fontName, this.text);
-    window.requestAnimationFrame(this.animate);
-    window.addEventListener('resize', this.resize);
-    this.resize();
-
-    return this.#app;
+    WebFont.load({
+      google: { families: ['Fjalla One'] },
+      fontactive: () => {
+        this.#app = new DotKineticText(this.fontName, this.text);
+        window.requestAnimationFrame(this.animate);
+        window.addEventListener('resize', this.resize);
+        this.resize();
+      },
+    });
   }
 
   animate = (curTime) => {

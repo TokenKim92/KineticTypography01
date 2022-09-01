@@ -10,6 +10,7 @@ export default class BaseCanvas {
   #stageWidth;
   #stageHeight;
   #isFull;
+  #isOnStage;
 
   constructor(isFull = false) {
     this.#canvas = document.createElement('canvas');
@@ -49,10 +50,12 @@ export default class BaseCanvas {
   }
 
   bringToStage() {
+    this.#isOnStage = true;
     document.body.append(this.#canvas);
   }
 
   removeFromStage() {
+    this.#isOnStage = false;
     this.clearCanvas();
     document.body.removeChild(this.#canvas);
   }
@@ -134,5 +137,9 @@ export default class BaseCanvas {
 
   set borderRadius(pixel) {
     this.#canvas.style.borderRadius = `${pixel}px`;
+  }
+
+  get isOnStage() {
+    return this.#isOnStage;
   }
 }

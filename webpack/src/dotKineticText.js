@@ -4,6 +4,7 @@ import Dot from './dot.js';
 import { collide, posInRect, randomClickInRect, colorToRGB, getRandomCharFromText } from './utils.js'; // prettier-ignore
 import BaseCanvas from '../lib/baseCanvas.js';
 import FontFormat from '../lib/fontFormat.js';
+import TypingBanner from './typingBanner.js';
 
 export default class DotKineticText extends BaseCanvas {
   static RADIUS = 10;
@@ -29,6 +30,8 @@ export default class DotKineticText extends BaseCanvas {
   #isRandomTextMode;
   #fontName;
   #prevSizeMode = BaseCanvas.INIT_MODE;
+  #textFrame;
+  #explainBanner;
 
   constructor(fontName, text, rippleTime = 5, isRandomTextMode = false) {
     super(true);
@@ -38,8 +41,10 @@ export default class DotKineticText extends BaseCanvas {
     this.#fontName = fontName;
 
     this.ripple = new Ripple(rippleTime);
-    this.#initTextFrame();
-    this.initEvents();
+    this.addEvents();
+
+    this.#explainBanner = new TypingBanner(fontName, 30, '#A494FF', '#000000cc'); //prettier-ignore
+    this.#explainBanner.show(300);
   }
 
   #initTextFrame() {
@@ -72,10 +77,10 @@ export default class DotKineticText extends BaseCanvas {
     const pixelSize = this.isMatchMedia
       ? DotKineticText.SMALL_MODE_PIXEL_SIZE
       : DotKineticText.PIXEL_SIZE;
-    this.textFrame = new TextFrame(fontFormat, pixelSize, DotKineticText.BG_COLOR); // prettier-ignore
+    this.#textFrame = new TextFrame(fontFormat, pixelSize, DotKineticText.BG_COLOR); // prettier-ignore
   }
 
-  initEvents() {
+  addEvents() {
     this.addEventToCanvas('click', this.onClick);
     document.addEventListener('pointermove', this.onMouseMove);
   }
@@ -87,10 +92,15 @@ export default class DotKineticText extends BaseCanvas {
 
   bringToStage() {
     super.bringToStage();
-    this.initEvents();
+    this.addEvents();
+
+    this.#explainBanner.setMessage();
+    this.#explainBanner.show(300);
   }
 
   removeFromStage() {
+    this.#explainBanner.hide();
+
     this.removeEvents();
     super.removeFromStage();
   }
@@ -102,19 +112,19 @@ export default class DotKineticText extends BaseCanvas {
     this.addDotItemOnTextField();
     this.isMatchMedia ? this.onClick({ offsetX: 0, offsetY: 0 })
                       : this.onClick(randomClickInRect(this.#textField)); // prettier-ignore
+
+    this.#explainBanner.resize();
   };
 
   animate(curTime) {
     this.#isKineticActivated ? this.KineticAnimate(curTime) : this.pluckAnimate(); // prettier-ignore
+    this.#explainBanner.animate(curTime);
   }
 
   onClick = (event) => {
-    if (
-      this.isMatchMedia &&
-      posInRect({ x: event.offsetX, y: event.offsetY }, this.#textField)
-    ) {
+    if (this.isMatchMedia && posInRect({ x: event.offsetX, y: event.offsetY }, this.#textField)) {
       return;
-    }
+    } // prettier-ignore
 
     this.#dots.forEach((dot) => dot.init());
     this.#pluckCount = 0;
@@ -122,12 +132,6 @@ export default class DotKineticText extends BaseCanvas {
     this.#maxPluckCount = this.ripple.init(this.#clickedPos.x, this.#clickedPos.y, this.#textField); // prettier-ignore
 
     this.clearCanvas();
-    this.textFrame.drawTextFrame(
-      this.ctx,
-      this.#toBeDrawText,
-      this.stageWidth,
-      this.stageHeight
-    );
     this.#isKineticActivated = false;
   };
 
@@ -182,7 +186,7 @@ export default class DotKineticText extends BaseCanvas {
                                                 : this.#text; // prettier-ignore
 
     this.clearCanvas();
-    const textData = this.textFrame.drawTextFrame(
+    const textData = this.#textFrame.drawTextFrame(
       this.ctx,
       this.#toBeDrawText,
       this.stageWidth,
