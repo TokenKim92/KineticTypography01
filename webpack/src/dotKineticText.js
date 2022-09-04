@@ -43,7 +43,7 @@ export default class DotKineticText extends BaseCanvas {
     this.ripple = new Ripple(rippleTime);
     this.addEvents();
 
-    this.#explainBanner = new TypingBanner(fontName, 30, '#A494FF', '#000000cc'); //prettier-ignore
+    this.#explainBanner = new TypingBanner(fontName, 50, '#A494FF', '#000000cc'); //prettier-ignore
     this.#explainBanner.show(300);
   }
 
